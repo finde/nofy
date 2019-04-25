@@ -31,11 +31,11 @@ module.exports = class Components {
       Assets: require('./Assets'),
       Pages: require('./Pages'),
       MessageQueue: require('./MessageQueue'),
+      Celery: require('./Celery'),
       Controllers: require('./Controllers'),
       SwaggerUI: require('./SwaggerUI'),
-      ErrorHandling: require('./ErrorHandling')
+      ErrorHandling: require('./ErrorHandling'),
     };
-
 
     return this;
   }
