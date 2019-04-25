@@ -18,6 +18,7 @@ module.exports = class Components {
       'Pages',
       'Controllers',
       'MessageQueue',
+      'Celery',
       'SwaggerUI*',
       'ErrorHandling' // always the last one !
     ], opt.customSequences);
