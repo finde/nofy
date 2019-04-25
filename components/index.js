@@ -18,7 +18,8 @@ module.exports = class Components {
       'Pages',
       'Controllers',
       'MessageQueue',
-      'SwaggerUI*'
+      'SwaggerUI*',
+      'ErrorHandling' // always the last one !
     ], opt.customSequences);
 
     this.fn = {
@@ -31,7 +32,8 @@ module.exports = class Components {
       Pages: require('./Pages'),
       MessageQueue: require('./MessageQueue'),
       Controllers: require('./Controllers'),
-      SwaggerUI: require('./SwaggerUI')
+      SwaggerUI: require('./SwaggerUI'),
+      ErrorHandling: require('./ErrorHandling')
     };
 
 
