@@ -12,7 +12,7 @@ module.exports = function Assets(nofy, { express, config }, cb) {
     tempFileDir: '/tmp',
     createParentPath: true,
     preserveExtension: true
-  }, config.uploadSetting || {});
+  }, config.uploadSettings || {});
 
 
   // create temp folder if not exists

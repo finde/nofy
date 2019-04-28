@@ -22,7 +22,7 @@ module.exports = {
     ns: "rsmq",
     alwaysRestart: true
   },
-  uploadSetting: {
+  uploadSettings: {
     useTempFiles: true,
     tempFileDir: '../public',
     createParentPath: true,
