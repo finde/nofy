@@ -21,5 +21,15 @@ module.exports = {
     port: 6379,
     ns: "rsmq",
     alwaysRestart: true
-  }
+  },
+  uploadSetting: {
+    useTempFiles: true,
+    tempFileDir: '../public',
+    createParentPath: true,
+    preserveExtension: true
+  },
+  // celery: {
+  //   CELERY_BROKER_URL: 'redis://redis:6379/1',
+  //   CELERY_RESULT_BACKEND: 'redis://redis:6379/1',
+  // },
 };
