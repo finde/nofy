@@ -4,8 +4,12 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports = function Assets(nofy, { express, config }, cb) {
-  const staticPath = path.resolve(nofy.rootDir, config.static);
-  express.use('/assets', Express.static(staticPath));
+  config.static.map(({prefix, folderPath})=> {
+    const staticPath = path.resolve(nofy.rootDir, folderPath);
+    if (fs.existsSync(staticPath)) {
+      express.use(prefix, Express.static(staticPath));
+    }
+  });
 
   const uploadSettings = Object.assign({
     useTempFiles: true,
@@ -16,8 +20,8 @@ module.exports = function Assets(nofy, { express, config }, cb) {
 
 
   // create temp folder if not exists
-  if (uploadSettings.useTempFiles) {
-    const dir = path.relative(nofy.rootDir, uploadSettings.tempFileDir);
+  if (uploadSettings.useTempFiles && !uploadSettings.tempFileDir.startsWith('/')) {
+    const dir = path.resolve(nofy.rootDir, uploadSettings.tempFileDir);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }

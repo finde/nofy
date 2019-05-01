@@ -20,6 +20,7 @@ module.exports = class Components {
       'MessageQueue',
       'Celery',
       'SwaggerUI*',
+      'SSR',
       'ErrorHandling' // always the last one !
     ], opt.customSequences);
 
@@ -36,6 +37,7 @@ module.exports = class Components {
       Controllers: require('./Controllers'),
       SwaggerUI: require('./SwaggerUI'),
       ErrorHandling: require('./ErrorHandling'),
+      SSR: require('./SSR'),
     };
 
     return this;

@@ -39,7 +39,7 @@ function routeBuilder(controller) {
   return router;
 }
 
-module.exports = function Controllers(nofy, { express }, cb) {
+module.exports = function Controllers(nofy, { express, config }, cb) {
   const controllerPath = path.resolve(nofy.rootDir, 'controllers');
   getFilesInPath(controllerPath).map(({ file, fullpath }) => {
     if (!nofy.controllers) {
@@ -50,7 +50,8 @@ module.exports = function Controllers(nofy, { express }, cb) {
     if (Controller.name) {
       const c = new Controller(nofy);
       nofy.controllers[Controller.name] = c;
-      express.use(`/${Controller.name}`, routeBuilder(c))
+      // express.use(`/${Controller.name}`, routeBuilder(c));
+      express.use(`${config.api.prefix}${config.api.version}/${Controller.name}`, routeBuilder(c));
     }
   });
   cb(true)

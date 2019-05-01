@@ -7,7 +7,7 @@ const swagger = require('mongoose2swagger');
 
 const { getFilesInPath } = require('../helper');
 
-function init({ nofy, router, swaggerDefinition }) {
+function init({ nofy, router, swaggerDefinition, config }) {
   const models = {};
 
   // get list of models in the folder
@@ -48,9 +48,18 @@ function init({ nofy, router, swaggerDefinition }) {
     modelObj.mongooseModel = mongoose.model(modelName,
       modelObj.mongooseSchema);
 
-    restify.serve(router, modelObj.mongooseModel, {
-      postRead: modelObj.model.postRead,
-    });
+    restify.serve(router, modelObj.mongooseModel,
+      Object.assign(config.api || {}, {
+        postRead: modelObj.model.postRead,
+        onError: (err, req, res, next) => {
+          const statusCode = req.erm.statusCode // 400 or 404
+
+          res.status(statusCode).json({
+            message: err.message
+          })
+        }
+      })
+    );
 
     if (swagger) {
       swagger.addSchema(swaggerDefinition, modelName, modelObj.mongooseSchema);
@@ -85,7 +94,7 @@ exports.default = function Models(nofy, { express, config }, cb) {
   }
 
   const results = init({
-    nofy, router, swaggerDefinition
+    nofy, router, swaggerDefinition, config
   });
 
   if (config.swagger) {
