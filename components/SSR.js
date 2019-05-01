@@ -1,4 +1,5 @@
 const { createBundleRenderer } = require('vue-server-renderer');
+const fs = require('fs');
 
 module.exports = function SSR(nofy, { express, config }, cb) {
   if (!config.ssr) {
