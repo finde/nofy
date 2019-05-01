@@ -6,7 +6,7 @@ const info = require('./package');
 const { log } = require('./helper');
 
 module.exports = class App {
-  constructor(config) {
+  constructor(config, extend) {
     const express = Express();
     this.config = config;
     this.version = info.version;
@@ -26,6 +26,9 @@ module.exports = class App {
 
     new Components({ express, config, info, nofy: this }).init();
 
+    if (!!extend) {
+      extend(express, config)
+    }
     return this;
   }
 
