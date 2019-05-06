@@ -3,11 +3,20 @@ const expressFileUpload = require('express-fileupload');
 const path = require('path');
 const fs = require('fs');
 
+const expressStaticGzip = require("express-static-gzip");
+
 module.exports = function Assets(nofy, { express, config }, cb) {
-  config.static.map(({prefix, folderPath})=> {
+  config.static.map(({ prefix, folderPath }) => {
     const staticPath = path.resolve(nofy.rootDir, folderPath);
     if (fs.existsSync(staticPath)) {
-      express.use(prefix, Express.static(staticPath));
+      if (!config.useModernCompression) {
+        express.use(prefix, Express.static(staticPath));
+      } else {
+        express.use(prefix, expressStaticGzip(staticPath, {
+          fallthrough: false,
+          enableBrotli: true,
+        }));
+      }
     }
   });
 
