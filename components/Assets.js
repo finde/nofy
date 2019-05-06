@@ -15,6 +15,7 @@ module.exports = function Assets(nofy, { express, config }, cb) {
         express.use(prefix, expressStaticGzip(staticPath, {
           fallthrough: false,
           enableBrotli: true,
+          orderPreference: ['br']
         }));
       }
     }
