@@ -12,7 +12,7 @@ function init({ nofy, router, swaggerDefinition, config }) {
 
   // get list of models in the folder
   const modelPath = path.resolve(nofy.rootDir, 'models');
-  getFilesInPath(modelPath).map(({ file, fullpath }) => {
+  getFilesInPath(modelPath).map(({ fullpath }) => {
     // eslint-disable-next-line
     const Model = require(fullpath);
     if (Model.name) {
@@ -52,7 +52,7 @@ function init({ nofy, router, swaggerDefinition, config }) {
       Object.assign(config.api || {}, {
         postRead: modelObj.model.postRead,
         onError: (err, req, res, next) => {
-          const statusCode = req.erm.statusCode // 400 or 404
+          const statusCode = req.erm.statusCode; // 400 or 404
 
           res.status(statusCode).json({
             message: err.message
@@ -69,9 +69,10 @@ function init({ nofy, router, swaggerDefinition, config }) {
     if (!nofy.models) {
       nofy.models = {}
     }
-    nofy.models[modelName] = modelObj.mongooseModel;
     return true;
   });
+
+  nofy.models = mongoose.models;
 
   return models;
 }
