@@ -22,7 +22,6 @@ function init({ nofy, router, swaggerDefinition, config }) {
       models[Model.name] = { model, mongooseSchema };
     }
 
-    nofy.models = models;
     return true;
   });
 
@@ -66,6 +65,11 @@ function init({ nofy, router, swaggerDefinition, config }) {
       swagger.addSchema(swaggerDefinition, modelName, modelObj.mongooseSchema);
     }
     // logComponent({componentName: modelName, level: 3, status:'SUCCESS'})
+
+    if (!nofy.models) {
+      nofy.models = {}
+    }
+    nofy.models[modelName] = modelObj.mongooseModel;
     return true;
   });
 
