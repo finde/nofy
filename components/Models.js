@@ -22,6 +22,7 @@ function init({ nofy, router, swaggerDefinition, config }) {
       models[Model.name] = { model, mongooseSchema };
     }
 
+    nofy.models = models;
     return true;
   });
 
