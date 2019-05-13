@@ -7,6 +7,8 @@ const swagger = require('mongoose2swagger');
 
 const { getFilesInPath } = require('../helper');
 
+mongoose.set('useFindAndModify', false);
+
 function init({ nofy, router, swaggerDefinition, config }) {
   const models = {};
 

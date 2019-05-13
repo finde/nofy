@@ -27,12 +27,15 @@ function routeBuilder(controller) {
 
   const config = routeParser(controller.router);
   config.map(({ method, path, methodName }) => {
-    if (method === 'all') {
-      supportedMethods.map(m => {
-        router[m](path, (req, res) => controller[methodName](req, res))
-      })
-    } else {
-      router[method](path, (req, res) => controller[methodName](req, res))
+
+    if (!!controller[methodName]) {
+      if (method === 'all') {
+        supportedMethods.map(m => {
+          router[m](path, (req, res) => controller[methodName](req, res))
+        })
+      } else {
+        router[method](path, (req, res) => controller[methodName](req, res))
+      }
     }
   });
 
