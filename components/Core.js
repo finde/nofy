@@ -5,6 +5,7 @@ const methodOverride = require('method-override');
 
 module.exports = function Core(nofy, { express }, cb) {
   express.use(cors());
+  express.use(bodyParser.urlencoded({ extended: true }));
   express.use(bodyParser.json());
   express.use(cookieParser());
   express.use(methodOverride());
