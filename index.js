@@ -4,6 +4,7 @@ const EventEmitter = require('events');
 const Components = require('./components');
 const info = require('./package');
 const { log } = require('./helper');
+const listEndpoints = require('express-list-endpoints');
 
 module.exports = class App {
   constructor(config, extend) {
@@ -60,5 +61,9 @@ module.exports = class App {
     }
 
     console.log('')
+  }
+
+  printRoutes() {
+    console.log(listEndpoints(this.express));
   }
 };
