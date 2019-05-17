@@ -13,6 +13,7 @@ module.exports = class App {
     this.version = info.version;
     this.gitVersion = '';
     this.rootDir = config.rootDir;
+    this.express = express;
 
     try {
       const git = require('git-rev-sync');
