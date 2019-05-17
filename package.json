@@ -1,6 +1,6 @@
 {
   "name": "@finde/nofy",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "Simple Framework for Simple Things",
   "main": "./index.js",
   "license": "-",
