@@ -19,7 +19,11 @@ function init({ nofy, router, swaggerDefinition, config }) {
     const Model = require(fullpath);
     if (Model.name) {
       const model = new Model();
-      const mongooseSchema = new mongoose.Schema(model.schema);
+      let extraOptions;
+      if (model.isWithTimestamp) {
+        extraOptions = { timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' } }
+      }
+      const mongooseSchema = new mongoose.Schema(model.schema, extraOptions);
 
       models[Model.name] = { model, mongooseSchema };
     }
