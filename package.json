@@ -3,7 +3,7 @@
   "version": "0.0.18",
   "description": "Simple Framework for Simple Things",
   "main": "./index.js",
-  "license": "-",
+  "license": "MIT",
   "author": "Finde Xumara",
   "private": true,
   "dependencies": {
@@ -32,5 +32,24 @@
     "rsmq": "^0.10.0",
     "rsmq-worker": "^0.5.2",
     "swagger-ui-dist": "^3.22.0"
-  }
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/finde/nofy.git"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "framework",
+    "simple",
+    "barebone"
+  ],
+  "bugs": {
+    "url": "https://github.com/finde/nofy/issues"
+  },
+  "homepage": "https://github.com/finde/nofy#readme"
 }
