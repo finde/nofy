@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const path = require('path');
 const { Types } = mongoose.Schema;
 const swagger = require('mongoose2swagger');
+const fs = require('fs');
 
 const { getFilesInPath } = require('../helper');
 
@@ -14,6 +15,13 @@ function init({ nofy, router, swaggerDefinition, config }) {
 
   // get list of models in the folder
   const modelPath = path.resolve(nofy.rootDir, 'models');
+
+  // if 'models' is not there, skip it
+  if (!fs.existsSync(path)) {
+    return 'SKIP';
+  }
+
+  // read path
   getFilesInPath(modelPath).map(({ fullpath }) => {
     // eslint-disable-next-line
     const Model = require(fullpath);
@@ -43,7 +51,7 @@ function init({ nofy, router, swaggerDefinition, config }) {
       // logComponent({componentName: modelName, level: 2, status:'FAIL'})
     }
 
-    return true;
+    return 'OK';
   });
 
   // serving with restify
@@ -79,7 +87,6 @@ function init({ nofy, router, swaggerDefinition, config }) {
   });
 
   nofy.models = mongoose.models;
-
   return models;
 }
 
@@ -102,18 +109,25 @@ exports.default = function Models(nofy, { express, config }, cb) {
   let swaggerDefinition = {};
 
   if (config.swagger) {
-    swaggerDefinition = swagger.base({ host: 'localhost:3000', basePath: '/api/v1' });
+    swaggerDefinition = swagger.base({
+      host: `localhost:${config.port}`,
+      basePath: `${config.api.prefix}${config.api.version}`
+    });
   }
 
   const results = init({
     nofy, router, swaggerDefinition, config
   });
 
-  if (config.swagger) {
-    swaggerDefinition.schemes = ['http'];
-    nofy.swaggerDefinition = swaggerDefinition;
-  }
+  if (results === 'SKIP') {
+    return cb('SKIP')
+  } else {
+    if (config.swagger) {
+      swaggerDefinition.schemes = ['http'];
+      nofy.swaggerDefinition = swaggerDefinition;
+    }
 
-  express.use(router);
-  return cb(results);
+    express.use(router);
+    return cb(results);
+  }
 };

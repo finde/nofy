@@ -3,7 +3,7 @@ const fs = require('fs');
 
 module.exports = function SSR(nofy, { express, config }, cb) {
   if (!config.ssr) {
-    return cb(false)
+    return cb('SKIP')
   }
 
   const bundleRenderer = createBundleRenderer(
@@ -19,5 +19,5 @@ module.exports = function SSR(nofy, { express, config }, cb) {
       .pipe(res);
   });
 
-  cb(true)
+  cb('OK')
 };

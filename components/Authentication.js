@@ -11,7 +11,7 @@ module.exports = class Authentication {
         algorithms: ['RS256'],
       });
       express.use('/api', jwtCheck);
-      return cb(true);
+      return cb('OK');
     }
   }
 };

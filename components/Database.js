@@ -8,8 +8,8 @@ module.exports = function Database(nofy, { config }, cb) {
     mongoose.connection.on('error', (err) => {
       console.log('Mongoose Connection Error', err)
     });
-    mongoose.connection.on('connected', () => cb(true));
-    mongoose.connection.on('reconnected', () => cb(true));
+    mongoose.connection.on('connected', () => cb('OK'));
+    mongoose.connection.on('reconnected', () => cb('OK'));
 
     function connectWithRetry() {
       return mongoose.connect(databaseUri, { useNewUrlParser: true }, (err) => {
@@ -21,6 +21,6 @@ module.exports = function Database(nofy, { config }, cb) {
 
     connectWithRetry();
   } else {
-    cb(true);
+    cb('SKIP');
   }
 };

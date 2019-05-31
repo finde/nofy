@@ -3,6 +3,10 @@ const Express = require('express');
 const fs = require('fs');
 
 module.exports = function SwaggerUI(nofy, { express, config }, cb) {
+  if (!config.swagger) {
+    return cb('SKIP')
+  }
+
   const pathToSwaggerUi = swaggerUIDist.absolutePath();
   const indexContent = fs.readFileSync(`${pathToSwaggerUi}/index.html`)
     .toString()
@@ -21,5 +25,5 @@ module.exports = function SwaggerUI(nofy, { express, config }, cb) {
     console.log(`\nSwagger started, listening on port http://localhost:${config.swagger.port}`);
   });
 
-  cb(true);
+  cb('OK');
 };

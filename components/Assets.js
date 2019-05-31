@@ -6,6 +6,10 @@ const fs = require('fs');
 const expressStaticGzip = require("express-static-gzip");
 
 module.exports = function Assets(nofy, { express, config }, cb) {
+  if (!config.static) {
+    return cb('SKIP');
+  }
+
   config.static.map(({ prefix, folderPath }) => {
     const staticPath = path.resolve(nofy.rootDir, folderPath);
     if (fs.existsSync(staticPath)) {
@@ -28,7 +32,6 @@ module.exports = function Assets(nofy, { express, config }, cb) {
     preserveExtension: true
   }, config.uploadSettings || {});
 
-
   // create temp folder if not exists
   if (uploadSettings.useTempFiles && !uploadSettings.tempFileDir.startsWith('/')) {
     const dir = path.resolve(nofy.rootDir, uploadSettings.tempFileDir);
@@ -38,5 +41,5 @@ module.exports = function Assets(nofy, { express, config }, cb) {
   }
 
   express.use(expressFileUpload(uploadSettings)); // allow upload - parser
-  return cb(true);
+  return cb('OK');
 };

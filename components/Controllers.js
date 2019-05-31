@@ -1,7 +1,7 @@
 const Express = require('express');
 const { getFilesInPath } = require('../helper');
 const path = require('path');
-
+const fs = require('fs');
 const supportedMethods = ['get', 'post', 'put', 'delete'];
 
 function routeParser(conf) {
@@ -44,6 +44,9 @@ function routeBuilder(controller) {
 
 module.exports = function Controllers(nofy, { express, config }, cb) {
   const controllerPath = path.resolve(nofy.rootDir, 'controllers');
+  if (!fs.existsSync(controllerPath)) {
+    return cb('SKIP')
+  }
   getFilesInPath(controllerPath).map(({ file, fullpath }) => {
     if (!nofy.controllers) {
       nofy.controllers = {}
@@ -57,5 +60,5 @@ module.exports = function Controllers(nofy, { express, config }, cb) {
       express.use(`${config.api.prefix}${config.api.version}/${Controller.name}`, routeBuilder(c));
     }
   });
-  cb(true)
+  return cb('OK')
 };

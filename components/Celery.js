@@ -5,13 +5,13 @@ const NodeCelery = require('node-celery');
  */
 module.exports = async function Celery(nofy, { express, config }, cb) {
   if (!config.celery) {
-    return cb(false);
+    return cb('SKIP');
   }
 
   const client = NodeCelery.createClient(config.celery);
 
-  client.on('error', () => cb(false));
-  client.on('connect', () => cb(true));
+  client.on('error', (err) => cb('FAILED', err));
+  client.on('connect', () => cb('OK'));
 
   nofy.celery = client;
 };

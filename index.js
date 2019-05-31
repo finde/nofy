@@ -61,6 +61,9 @@ module.exports = class App {
       log('');
     }
 
+    log(`   Use modern compression:: ${this.config.useModernCompression ? '✔': '✖' }`);
+
+    log(`   Api Prefix:: ${this.config.api.prefix}${this.config.api.version}`);
     console.log('')
   }
 

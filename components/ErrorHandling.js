@@ -16,12 +16,12 @@ module.exports = function ErrorHandling(nofy, { express }, cb) {
     }
 
     if (req.accepts('json')) {
-      req.send({ error: 'Not Found'});
+      req.send({ error: 'Not Found' });
       return false;
     }
 
     res.type('txt').send('Not Found');
   });
 
-  return cb(true);
+  return cb('OK');
 };

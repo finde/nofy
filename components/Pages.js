@@ -6,5 +6,5 @@ module.exports = function Pages(nofy, { express }, cb) {
 
     res.sendFile(welcomeHTML);
   });
-  return cb(true);
+  return cb('OK');
 };

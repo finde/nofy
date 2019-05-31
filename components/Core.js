@@ -9,5 +9,5 @@ module.exports = function Core(nofy, { express }, cb) {
   express.use(bodyParser.json());
   express.use(cookieParser());
   express.use(methodOverride());
-  return cb(true);
+  return cb('OK');
 };

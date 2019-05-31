@@ -69,14 +69,17 @@ const promiseWrapper = (nofy, fn, params, isSkipped = false) => {
     return true;
   }
   return new Promise((resolve, reject) => {
-    const cb = (result, err) => {
-      if (err) {
+    const cb = (status, statusMessage) => {
+      if (status === 'SKIP') {
+        logComponent({ componentName: name, status: 'SKIPPED' });
+        return resolve(true);
+      } else if (status === 'OK') {
+        logComponent({ componentName: name, status: 'SUCCESS' });
+        return resolve(true);
+      } else {
         logComponent({ componentName: name, status: 'FAILED' });
-        // console.log('')
-        return reject(err);
+        return reject(statusMessage || `Component Initialization Error :: ${name}`);
       }
-      logComponent({ componentName: name, status: 'SUCCESS' });
-      return resolve(true);
     };
 
     fn(nofy, params, cb);

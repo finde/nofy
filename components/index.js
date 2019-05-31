@@ -1,9 +1,8 @@
-const config = require('config');
-
+const config = Object.assign(require('../default_config'), require('config'));
 const { promiseWrapper, log } = require('../helper');
 
 module.exports = class Components {
-  constructor({ express, nofy, info, opt = { customSequences: []} }) {
+  constructor({ express, nofy, info, opt = { customSequences: [] } }) {
     this.express = express;
     this.nofy = nofy;
     this.info = info;
@@ -19,7 +18,7 @@ module.exports = class Components {
       'Controllers',
       'MessageQueue',
       'Celery',
-      'SwaggerUI*',
+      'SwaggerUI',
       // 'SSR',
       'ErrorHandling' // always the last one !
     ], opt.customSequences);

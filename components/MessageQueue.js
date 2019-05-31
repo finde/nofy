@@ -6,7 +6,7 @@ const RSMQWorker = require("rsmq-worker");
  */
 module.exports = async function MessageQueue(nofy, { express, config }, cb) {
   if (!config.rsmq) {
-    return cb(false);
+    return cb('SKIP');
   }
 
   nofy.messageQueue = new RedisSMQ(config.rsmq);
@@ -59,5 +59,5 @@ module.exports = async function MessageQueue(nofy, { express, config }, cb) {
     }
   }
 
-  return cb(true);
+  return cb('OK');
 };
