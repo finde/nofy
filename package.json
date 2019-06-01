@@ -1,11 +1,11 @@
 {
   "name": "@finde/nofy",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "Simple Framework for Simple Things",
   "main": "./index.js",
   "license": "MIT",
   "author": "Finde Xumara",
-  "private": true,
+  "private": false,
   "dependencies": {
     "accesscontrol": "^2.2.1",
     "body-parser": "^1.18.3",

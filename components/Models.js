@@ -17,7 +17,7 @@ function init({ nofy, router, swaggerDefinition, config }) {
   const modelPath = path.resolve(nofy.rootDir, 'models');
 
   // if 'models' is not there, skip it
-  if (!fs.existsSync(path)) {
+  if (!fs.existsSync(modelPath)) {
     return 'SKIP';
   }
 
