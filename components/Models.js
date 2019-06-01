@@ -87,7 +87,7 @@ function init({ nofy, router, swaggerDefinition, config }) {
   });
 
   nofy.models = mongoose.models;
-  return models;
+  return 'OK';
 }
 
 exports.BasicSchema = class BasicSchema {
