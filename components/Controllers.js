@@ -40,7 +40,7 @@ function routeBuilder(controller, secureMiddleware) {
 
   const config = routeParser(controller.router);
   config.map(({ method, path, methodName, isSecure }) => {
-    const cb = controller[methodName];
+    const cb = (req, res, next) => controller[methodName](req, res, next);
 
     let isPrivate = false;
     if (typeof controller.isPrivate === 'undefined') {
