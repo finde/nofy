@@ -9,7 +9,7 @@ module.exports = class Components {
 
     this.sequences = Object.assign([
       'Core',
-      'Authentication*',
+      'Authentication',
       'Database',
       'Models',
       'Permission',

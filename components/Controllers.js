@@ -22,20 +22,21 @@ function routeParser(conf) {
   });
 }
 
-function routeBuilder(controller) {
+function routeBuilder(controller, secureMiddleware) {
   const router = Express.Router();
 
   const config = routeParser(controller.router);
   config.map(({ method, path, methodName }) => {
+    const cb = controller[methodName];
 
     if (!!controller[methodName]) {
-      if (method === 'all') {
-        supportedMethods.map(m => {
-          router[m](path, (req, res) => controller[methodName](req, res))
-        })
-      } else {
-        router[method](path, (req, res) => controller[methodName](req, res))
-      }
+      (method === 'all' ? supportedMethods : [method]).map(m => {
+        if (controller.isPrivate) {
+          router[m](path, secureMiddleware, cb)
+        } else {
+          router[m](path, cb)
+        }
+      })
     }
   });
 
@@ -57,7 +58,9 @@ module.exports = function Controllers(nofy, { express, config }, cb) {
       const c = new Controller(nofy);
       nofy.controllers[Controller.name] = c;
       // express.use(`/${Controller.name}`, routeBuilder(c));
-      express.use(`${config.api.prefix}${config.api.version}/${Controller.name}`, routeBuilder(c));
+      const routes = routeBuilder(c, nofy.secured);
+      const urlPattern = `${config.api.prefix}${config.api.version}/${Controller.name}`;
+      express.use(urlPattern, routes);
     }
   });
   return cb('OK')
