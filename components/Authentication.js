@@ -20,9 +20,9 @@ module.exports = function Authentication(nofy, { express, config }, cb) {
   }
 
   // check config strategy
-  let strategies = [];
-
-  (Array.isArray(config.auth) ? config.auth : [config.auth]).map(({ service, configuration }) => {
+  let strategies = {};
+  const authConfigurationArray = (Array.isArray(config.auth) ? config.auth : [config.auth]);
+  authConfigurationArray.map(({ service, configuration }) => {
     if (service === 'auth0') {
       const strategy = new Auth0Strategy(configuration,
         (accessToken, refreshToken, extraParams, profile, done) => {
@@ -32,7 +32,7 @@ module.exports = function Authentication(nofy, { express, config }, cb) {
           return done(null, profile);
         });
       passport.use(strategy);
-      strategies.push('auth0');
+      strategies[service] = configuration;
     }
   });
 
@@ -59,9 +59,8 @@ module.exports = function Authentication(nofy, { express, config }, cb) {
 
   // create router for 'login', 'callback', and 'logout'
   router.get(`/callback`, (req, res, next) => {
-    passport.authenticate('auth0', (err, user, info) => {
+    passport.authenticate(Object.keys(strategies), (err, user, info) => {
       if (err) {
-        console.log('err', err);
         return next(err);
       }
       if (!user) {
@@ -78,7 +77,7 @@ module.exports = function Authentication(nofy, { express, config }, cb) {
     })(req, res, next);
   });
 
-  router.get(`/login`, passport.authenticate(strategies, {
+  router.get(`/login`, passport.authenticate(Object.keys(strategies), {
       scope: 'openid email profile'
     }),
     (req, res) => {
@@ -86,23 +85,27 @@ module.exports = function Authentication(nofy, { express, config }, cb) {
     });
 
   router.get(`/logout`, (req, res) => {
-    req.logOut();
+    let logoutURL = '/';
+    if (req.user && req.user.id.startsWith('auth0')) {
+      let returnTo = strategies['auth0'].logoutURL;
+      if (!returnTo) {
+        returnTo = req.protocol + '://' + req.hostname;
+        const port = req.connection.localPort;
+        if (port !== undefined && port !== 80 && port !== 443) {
+          returnTo += ':' + port;
+        }
+      }
 
-    /// if login using auth0
-    let returnTo = req.protocol + '://' + req.hostname;
-    const port = req.connection.localPort;
-    if (port !== undefined && port !== 80 && port !== 443) {
-      returnTo += ':' + port;
+      logoutURL = new URL(
+        util.format('https://%s/logout', config.auth.configuration.domain)
+      );
+      logoutURL.search = querystring.stringify({
+        client_id: config.auth.configuration.clientID,
+        returnTo: returnTo
+      });
     }
-    const logoutURL = new URL(
-      util.format('https://%s/logout', config.auth.configuration.domain)
-    );
-    const searchString = querystring.stringify({
-      client_id: config.auth.configuration.clientID,
-      returnTo: returnTo
-    });
-    logoutURL.search = searchString;
 
+    req.logOut();
     res.redirect(logoutURL);
   });
 
