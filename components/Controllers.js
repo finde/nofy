@@ -31,7 +31,7 @@ function routeBuilder(controller, secureMiddleware) {
 
     if (!!controller[methodName]) {
       (method === 'all' ? supportedMethods : [method]).map(m => {
-        if (controller.isPrivate) {
+        if (controller.isPrivate && secureMiddleware) {
           router[m](path, secureMiddleware, cb)
         } else {
           router[m](path, cb)
