@@ -7,7 +7,9 @@ module.exports = function Database(nofy, { config }, cb) {
 
     mongoose.connection.on('error', (err) => {
       console.log('Mongoose Connection Error', err)
+      setTimeout(connectWithRetry, 5000);
     });
+
     mongoose.connection.on('connected', () => cb('OK'));
     mongoose.connection.on('reconnected', () => cb('OK'));
 
