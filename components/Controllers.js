@@ -7,35 +7,56 @@ const supportedMethods = ['get', 'post', 'put', 'delete'];
 function routeParser(conf) {
   return Object.entries(conf).map((confTuple) => {
     let method = 'all';
+    const routerPattern = confTuple[0];
+    const routerConf = confTuple[1];
+    let isSecure = false;
+    let methodName;
 
     supportedMethods.map(methodOptions => {
-      if (confTuple[0].toLowerCase().startsWith(methodOptions)) {
+      if (routerPattern.toLowerCase().startsWith(methodOptions)) {
         method = methodOptions
       }
     });
 
+    // handle router config
+    if (typeof routerConf === 'string' || routerConf instanceof String) {
+      methodName = routerConf
+    } else if (routerConf.fn) {
+      methodName = routerConf.fn;
+      isSecure = !!routerConf.isPrivate;
+    }
+
     return {
       method,
-      path: method === 'all' ? confTuple[0] : confTuple[0].split(' ')[1],
-      methodName: confTuple[1]
+      path: method === 'all' ? routerPattern : routerPattern.split(' ')[1],
+      methodName,
+      isSecure
     }
   });
 }
 
-function routeBuilder(controller) {
+function routeBuilder(controller, secureMiddleware) {
   const router = Express.Router();
 
   const config = routeParser(controller.router);
-  config.map(({ method, path, methodName }) => {
+  config.map(({ method, path, methodName, isSecure }) => {
+    const cb = (req, res, next) => controller[methodName](req, res, next);
+
+    let isPrivate = false;
+    if (typeof controller.isPrivate === 'undefined') {
+      isPrivate = isSecure;
+    } else {
+      isPrivate = (typeof isSecure === 'undefined') ? controller.isPrivate : isSecure;
+    }
 
     if (!!controller[methodName]) {
-      if (method === 'all') {
-        supportedMethods.map(m => {
-          router[m](path, (req, res) => controller[methodName](req, res))
-        })
-      } else {
-        router[method](path, (req, res) => controller[methodName](req, res))
-      }
+      (method === 'all' ? supportedMethods : [method]).map(m => {
+        if (isPrivate) {
+          router[m](path, secureMiddleware, cb)
+        } else {
+          router[m](path, cb)
+        }
+      })
     }
   });
 
@@ -47,7 +68,7 @@ module.exports = function Controllers(nofy, { express, config }, cb) {
   if (!fs.existsSync(controllerPath)) {
     return cb('SKIP')
   }
-  getFilesInPath(controllerPath).map(({ file, fullpath }) => {
+  getFilesInPath(controllerPath).map(({ fullpath }) => {
     if (!nofy.controllers) {
       nofy.controllers = {}
     }
@@ -57,7 +78,9 @@ module.exports = function Controllers(nofy, { express, config }, cb) {
       const c = new Controller(nofy);
       nofy.controllers[Controller.name] = c;
       // express.use(`/${Controller.name}`, routeBuilder(c));
-      express.use(`${config.api.prefix}${config.api.version}/${Controller.name}`, routeBuilder(c));
+      const routes = routeBuilder(c, nofy.secured);
+      const urlPattern = `${config.api.prefix}${config.api.version}/${Controller.name}`;
+      express.use(urlPattern, routes);
     }
   });
   return cb('OK')
