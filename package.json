@@ -16,6 +16,7 @@
     "express": "^4.16.4",
     "express-fileupload": "^1.1.4",
     "express-jwt": "^5.3.1",
+    "express-jwt-authz": "^2.3.1",
     "express-list-endpoints": "^4.0.1",
     "express-restify-mongoose": "^5.0.0",
     "express-session": "^1.16.1",

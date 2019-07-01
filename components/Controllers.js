@@ -3,6 +3,7 @@ const { getFilesInPath } = require('../helper');
 const path = require('path');
 const fs = require('fs');
 const supportedMethods = ['get', 'post', 'put', 'delete'];
+const jwtAuthz = require('express-jwt-authz');
 
 function routeParser(conf) {
   return Object.entries(conf).map((confTuple) => {
@@ -10,6 +11,7 @@ function routeParser(conf) {
     const routerPattern = confTuple[0];
     const routerConf = confTuple[1];
     let isSecure = false;
+    let needPermissions = false;
     let methodName;
 
     supportedMethods.map(methodOptions => {
@@ -24,13 +26,15 @@ function routeParser(conf) {
     } else if (routerConf.fn) {
       methodName = routerConf.fn;
       isSecure = !!routerConf.isPrivate;
+      needPermissions = !!routerConf.requirePermissions;
     }
 
     return {
       method,
       path: method === 'all' ? routerPattern : routerPattern.split(' ')[1],
       methodName,
-      isSecure
+      isSecure,
+      needPermissions
     }
   });
 }
@@ -39,22 +43,35 @@ function routeBuilder(controller, secureMiddleware) {
   const router = Express.Router();
 
   const config = routeParser(controller.router);
-  config.map(({ method, path, methodName, isSecure }) => {
+  config.map(({ method, path, methodName, isSecure, needPermissions }) => {
     const cb = (req, res, next) => controller[methodName](req, res, next);
 
+    // check isPrivate
     let isPrivate = false;
-    if (typeof controller.isPrivate === 'undefined') {
+    if (typeof controller.isPrivate === 'undefined') { // global settings
       isPrivate = isSecure;
-    } else {
+    } else {                                           // methods settings
       isPrivate = (typeof isSecure === 'undefined') ? controller.isPrivate : isSecure;
+    }
+
+    // check permission
+    let requirePermissions = false;
+    if (typeof controller.requirePermissions === 'undefined') { // global settings
+      requirePermissions = needPermissions;
+    } else {                                           // methods settings
+      requirePermissions = (typeof needPermissions === 'undefined') ? controller.requirePermissions : needPermissions;
     }
 
     if (!!controller[methodName]) {
       (method === 'all' ? supportedMethods : [method]).map(m => {
-        if (isPrivate) {
-          router[m](path, secureMiddleware, cb)
-        } else {
+        if (!isPrivate) {
           router[m](path, cb)
+        } else {
+          if (!requirePermissions) {
+            router[m](path, secureMiddleware, cb)
+          } else {
+            router[m](path, secureMiddleware, jwtAuthz(requirePermissions), cb)
+          }
         }
       })
     }

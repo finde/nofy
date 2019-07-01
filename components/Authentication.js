@@ -6,13 +6,15 @@ const router = Express.Router();
 const querystring = require('querystring');
 const util = require('util');
 
-const defaultConfigAuth0 = {
-  domain: 'your-domain.auth0.com',
-  clientID: 'your-client-id',
-  clientSecret: 'your-client-secret',
-  callbackURL: '/api/v1/auth/callback'
-};
+const jwt = require('express-jwt');
+const jwksRsa = require('jwks-rsa');
 
+// const defaultConfigAuth0 = {
+//   domain: 'your-domain.auth0.com',
+//   clientID: 'your-client-id',
+//   clientSecret: 'your-client-secret',
+//   callbackURL: '/api/v1/auth/callback'
+// };
 
 module.exports = function Authentication(nofy, { express, config }, cb) {
   if (!config.auth) {
@@ -33,16 +35,43 @@ module.exports = function Authentication(nofy, { express, config }, cb) {
         });
       passport.use(strategy);
       strategies[service] = configuration;
+
+      // Authentication middleware. When used, the
+      // Access Token must exist and be verified against
+      // the Auth0 JSON Web Key Set
+      strategies[service].checkJwt = jwt({
+        // Dynamically provide a signing key
+        // based on the kid in the header and
+        // the signing keys provided by the JWKS endpoint.
+        secret: jwksRsa.expressJwtSecret({
+          cache: true,
+          rateLimit: true,
+          jwksRequestsPerMinute: 5,
+          jwksUri: `https://${configuration.domain}/.well-known/jwks.json`
+        }),
+
+        // Validate the audience and the issuer.
+        audience: configuration.audience,
+        issuer: `https://${configuration.domain}/`,
+        algorithms: ['RS256']
+      });
     }
   });
 
   const prefix = `${config.api.prefix}${config.api.version}/auth`;
   nofy.secured = (req, res, next) => {
-    if (req.user) {
-      return next();
+    // token is exists when login via client
+    const token = req.headers["x-access-token"] || req.headers["authorization"];
+    if (token) {
+      return strategies['auth0'].checkJwt(req, res, next)
+    } else {
+      // req.user is exists when login through API
+      if (req.user) {
+        return next();
+      }
+      req.session.returnTo = req.originalUrl;
+      res.redirect(`${prefix}/login`);
     }
-    req.session.returnTo = req.originalUrl;
-    res.redirect(`${prefix}/login`);
   };
 
   passport.serializeUser(function (user, done) {
